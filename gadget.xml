@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<Module>
+    <ModulePrefs title="RSS Feed"  height="300">
+    	<Require feature="wave"/>
+    	<Require feature="osapi"/>
+    	<Require feature="dynamic-height"/>
+    </ModulePrefs>
+    <Content type="html" href="http://opensocialuser.github.io/rss_feed/rss_reader.html">
+    </Content>
+</Module>
