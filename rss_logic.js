@@ -66,6 +66,25 @@ function checkIfOwner() {
     });
 }
 
+function sanitize(text) {
+    var safeDiv = document.createElement("div");
+    safeDiv.innerHTML = text;
+
+    var scriptElements = safeDiv.getElementsByTagName("script");
+    for (var i = 0; i < scriptElements.length; i++) {
+        scriptElements[i].parentNode.removeChild(scriptElements[i]);
+    }
+
+    var childElements = safeDiv.children;
+    for (var i = 0; i < childElements.length; i++) {
+        childElements[i].removeAttribute("onclick");
+        childElements[i].removeAttribute("onload");
+        childElements[i].removeAttribute("onchange");
+    }
+
+    return safeDiv.innerHTML;
+}
+
 function handleResponse(obj) { 
     var html = "";
     var htmlFooter = "";
@@ -74,10 +93,10 @@ function handleResponse(obj) {
     var rss = toObject(obj.text);
     rss["Entry"].forEach(function(entry){
     	html += "<div class='rssEntry'>";
-    	html += "<div class='entryTitle'>" + entry["Title"] + "</div>";
-    	var entryDate = new Date(entry["Date"]);
+    	html += "<div class='entryTitle'>" + sanitize(entry["Title"]) + "</div>";
+    	var entryDate = new Date(sanitize(entry["Date"]));
     	html += "<div class='entryDate'>" + normalizeDate(entryDate) + "</div>";
-    	html += "<a target='_blank' class='entryLink' href='" + entry["Link"] + "'>" + "Browse</a>";
+    	html += "<a target='_blank' class='entryLink' href='" + sanitize(entry["Link"]) + "'>" + "Browse</a>";
     	html += "</div>";
     });
 
@@ -85,8 +104,8 @@ function handleResponse(obj) {
         htmlFooter += "<button id='editButton' onclick='renderEditPage()''>Edit</button>";
     }
 
-    htmlHeader += "<div class='mainImageWrapper'><img class='mainImage' src='" + rss["Image"]["Url"] + "'></div>";
-    htmlHeader += "<a target='_blank' class='mainLink' href='" + rss["Link"] + "'>" + rss["Title"] + "</a>";
+    htmlHeader += "<div class='mainImageWrapper'><img class='mainImage' src='" + sanitize(rss["Image"]["Url"]) + "'></div>";
+    htmlHeader += "<a target='_blank' class='mainLink' href='" + sanitize(rss["Link"]) + "'>" + sanitize(rss["Title"]) + "</a>";
 
     document.getElementById('body').innerHTML = html;
     document.getElementById('footer').innerHTML = htmlFooter;
