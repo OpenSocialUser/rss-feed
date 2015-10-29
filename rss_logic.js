@@ -178,7 +178,7 @@ function handleResponse(obj) {
     rss["Entry"].forEach(function(entry){
     	html += "<div class='rssEntry'>";
     	html += "<div class='entryTitle'>" + sanitize(entry["Title"]) + "</div>";
-    	var entryDate = new Date(sanitize(entry["Date"]));
+    	var entryDate = new Date(entry["Date"]);
     	html += "<div class='entryDate'>" + normalizeDate(entryDate) + "</div>";
     	html += "<a target='_blank' class='entryLink' href='" + sanitize(entry["Link"]) + "'>" + "Browse</a>";
     	html += "</div>";
