@@ -32,7 +32,7 @@ function requestRSS(rss_url, number) {
     var opt_params = {};  
     opt_params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.FEED;
     opt_params[gadgets.io.RequestParameters.NUM_ENTRIES] = number; 
-    opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 300; 
+    opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 3600; 
 
     gadgets.io.makeRequest(rss_url, handleResponse, opt_params);
 }
@@ -170,6 +170,11 @@ function sanitize(text) {
 }
 
 function handleResponse(obj) { 
+    if (obj.rc == 400) {
+        renderEditPage("Provided link is not a valid RSS Feed.");
+        return;
+    }
+
     var html = "";
     var htmlFooter = "";
     var htmlHeader = "";
@@ -185,10 +190,12 @@ function handleResponse(obj) {
     });
 
     if (isOwner) {
-        htmlFooter += "<button id='editButton' onclick='renderEditPage()''>Edit</button>";
+        htmlFooter += "<button id='editButton' onclick='renderEditPage("")''>Edit</button>";
     }
 
-    htmlHeader += "<div class='mainImageWrapper'><img class='mainImage' src='" + sanitize(rss["Image"]["Url"]) + "'></div>";
+    if (rss["Image"] != undefined && rss["Image"]["Url"] != undefined) {
+        htmlHeader += "<div class='mainImageWrapper'><img class='mainImage' src='" + sanitize(rss["Image"]["Url"]) + "'></div>";
+    }
     htmlHeader += "<a target='_blank' class='mainLink' href='" + sanitize(rss["Link"]) + "'>" + sanitize(rss["Title"]) + "</a>";
 
     document.getElementById('body').innerHTML = html;
@@ -196,7 +203,7 @@ function handleResponse(obj) {
     document.getElementById('header').innerHTML = htmlHeader;
 }
 
-function renderEditPage() {
+function renderEditPage(errorText) {
 	var state = wave.getState();
 	var rssLink = state.get('rss_link');
     var entries_to_display = state.get('entries_to_display');
@@ -204,6 +211,10 @@ function renderEditPage() {
 	var html = "";
 	var htmlHeader = "";
 	var htmlFooter = "";
+
+    if (errorText != "") {
+        html += "<p style='font-size: 14px; color: red;'>" + errorText + "</p>";
+    }
 
 	html += "<p style='font-size: 14px;'>Enter RSS feed URL:</p>";
 	if (rssLink != null && rssLink != "") {
@@ -238,6 +249,18 @@ function renderEditPage() {
     document.getElementById('header').innerHTML = htmlHeader;
 }
 
+function renderDummy() {
+    var html = "";
+    var htmlHeader = "";
+    var htmlFooter = "";
+
+    html += "<p style='color:red;'>Gadget has not yet been initialized with proper RSS Feed. Please contact group admin.</p>";
+
+    document.getElementById('body').innerHTML = html;
+    document.getElementById('footer').innerHTML = htmlFooter;
+    document.getElementById('header').innerHTML = htmlHeader;
+}
+
 function renderRSS() {
     if (!wave.getState()) {
         return;
@@ -255,13 +278,14 @@ function renderRSS() {
     	requestRSS(rssLink, displayEntries);
     } else {
         if (isOwner) {
-    	   renderEditPage();
+    	   renderEditPage("");
         } else {
-            setTimeout(function(){
+            /*setTimeout(function(){
                 if (isOwner) {
-                   renderEditPage();
+                   renderEditPage("");
                 }
-            }, 2000);
+            }, 2000);*/
+            renderDummy();
         }
     }
 
