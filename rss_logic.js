@@ -190,7 +190,7 @@ function handleResponse(obj) {
     });
 
     if (isOwner) {
-        htmlFooter += "<button id='editButton' onclick='renderEditPage("")''>Edit</button>";
+        htmlFooter += "<button id='editButton' onclick='renderEditPage(null)''>Edit</button>";
     }
 
     if (rss["Image"] != undefined && rss["Image"]["Url"] != undefined) {
@@ -212,7 +212,7 @@ function renderEditPage(errorText) {
 	var htmlHeader = "";
 	var htmlFooter = "";
 
-    if (errorText != "") {
+    if (errorText != null && errorText != "") {
         html += "<p style='font-size: 14px; color: red;'>" + errorText + "</p>";
     }
 
@@ -278,11 +278,11 @@ function renderRSS() {
     	requestRSS(rssLink, displayEntries);
     } else {
         if (isOwner) {
-    	   renderEditPage("");
+    	   renderEditPage(null);
         } else {
             /*setTimeout(function(){
                 if (isOwner) {
-                   renderEditPage("");
+                   renderEditPage(null);
                 }
             }, 2000);*/
             renderDummy();
