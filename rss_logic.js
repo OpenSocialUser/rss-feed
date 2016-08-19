@@ -43,8 +43,16 @@ function normalizeDate(date) {
 	dateString += date.getDate().toString() + '/';
 	dateString += date.getFullYear().toString();
 	dateString += "  ";
-	dateString += date.getHours().toString() + ":";
-	dateString += date.getMinutes().toString();
+    if (date.getHours() < 10) {
+        dateString += "0" + date.getHours().toString() + ":";
+    } else {
+        dateString += date.getHours().toString() + ":";
+    }
+    if (date.getMinutes() < 10) {
+        dateString += "0" + date.getMinutes().toString();
+    } else {
+        dateString += date.getMinutes().toString();
+    }
 
 	return dateString;
 }
