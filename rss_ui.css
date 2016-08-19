@@ -86,3 +86,9 @@
 #editButton {
 	margin-top: 10px;
 }
+
+#editButtonIcon {
+	margin-top: 10px;
+	margin-left: 10px;
+	background-image: url(settings_icon.png);
+}
