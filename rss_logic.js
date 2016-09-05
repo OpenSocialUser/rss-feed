@@ -198,8 +198,8 @@ function handleResponse(obj) {
     });
 
     if (isOwner) {
-        htmlFooter += "<button id='editButton' onclick='renderEditPage(null)''>Edit</button>";
-        //htmlFooter += "<div id='editButtonIcon' onclick='renderEditPage(null)''></div>";
+        //htmlFooter += "<button id='editButton' onclick='renderEditPage(null)''>Edit</button>";
+        htmlFooter += "<div id='editButtonIcon' onclick='renderEditPage(null)''></div>";
     }
 
     if (rss["Image"] != undefined && rss["Image"]["Url"] != undefined) {
