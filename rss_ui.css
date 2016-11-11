@@ -7,10 +7,12 @@
 #body {
 	margin-top: 20px;
 	margin-bottom: 20px;
+	display: inline-block;
 }
 
 #header {
 	height: 30px;
+	display: inline-block;
 }
 
 #footer {
@@ -61,7 +63,7 @@
 }
 
 .mainImage {
-	width: 50px;
+	max-width: 50px;
 	display: inline-block;
 	float: left;
 	margin-left: 10px;
