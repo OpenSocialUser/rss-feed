@@ -8,11 +8,13 @@
 	margin-top: 20px;
 	margin-bottom: 20px;
 	display: inline-block;
+	width: 100%;
 }
 
 #header {
 	height: 30px;
 	display: inline-block;
+	width: 100%;
 }
 
 #footer {
