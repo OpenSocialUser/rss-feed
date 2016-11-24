@@ -1,7 +1,7 @@
 var isOwner = false;
 
-function toJSON(obj) { 
-	return gadgets.json.stringify(obj); 
+function toJSON(obj) {
+	return gadgets.json.stringify(obj);
 }
 
 function toObject(str) {
@@ -28,11 +28,11 @@ function changeRSSLink(){
 	}
 }
 
-function requestRSS(rss_url, number) {    
-    var opt_params = {};  
+function requestRSS(rss_url, number) {
+    var opt_params = {};
     opt_params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.FEED;
-    opt_params[gadgets.io.RequestParameters.NUM_ENTRIES] = number; 
-    opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 3600; 
+    opt_params[gadgets.io.RequestParameters.NUM_ENTRIES] = number;
+    opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 3600;
 
     gadgets.io.makeRequest(rss_url, handleResponse, opt_params);
 }
@@ -177,7 +177,7 @@ function sanitize(text) {
     return safeDiv.innerHTML;
 }
 
-function handleResponse(obj) { 
+function handleResponse(obj) {
     if (obj.rc == 400) {
         renderEditPage("Provided link is not a valid RSS Feed.");
         return;
@@ -308,7 +308,7 @@ function init() {
     if (wave && wave.isInWaveContainer()) {
         wave.setStateCallback(renderRSS);
 
-        wave.setParticipantCallback(renderRSS);
+        // wave.setParticipantCallback(renderRSS);
     }
 }
 
