@@ -1,48 +1,46 @@
-var isOwner = false;
+var isOwner = null;
+var isOnSave = false;
 
 function toJSON(obj) {
-	return gadgets.json.stringify(obj);
+    return gadgets.json.stringify(obj);
 }
 
 function toObject(str) {
     return gadgets.json.parse(str);
 }
 
-function changeRSSLink(){
-	var state = wave.getState();
+function checkIfOwner() {
+    if (isOwner != null) return;
 
-	var rssLink = document.getElementById('link_to_rss').value;
-    var entries_to_display = parseInt(document.getElementById('entries_to_display').value);
-
-	if (rssLink != null && rssLink != "") {
-        if (entries_to_display != null && entries_to_display >= 1 && entries_to_display <= 25) {
-            document.getElementById('entries_to_display').value = '';
-            state.submitDelta({'entries_to_display' : entries_to_display});
-        } else {
-            document.getElementById('entries_to_display').value = '';
-            state.submitDelta({'entries_to_display' : 3});
-        }
-		document.getElementById('link_to_rss').value = '';
-		state.submitDelta({'rss_link' : rssLink});
-		requestRSS(rssLink);
-	}
+    var userId = null;
+    var ownerId = null;
+    osapi.people.getOwner().execute(function(data) {
+        ownerId = data.id;
+        osapi.people.getViewer().execute(function(data) {
+            userId = data.id;
+            if (ownerId != null && userId != null) {
+                isOwner = (ownerId == userId);
+            }
+        });
+    });
 }
 
-function requestRSS(rss_url, number) {
-    var opt_params = {};
-    opt_params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.FEED;
-    opt_params[gadgets.io.RequestParameters.NUM_ENTRIES] = number;
-    opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 3600;
+function getState() {
+    var state = wave.getState();
 
-    gadgets.io.makeRequest(rss_url, handleResponse, opt_params);
+    return {
+        rssLink: state.get('rss_link'),
+        displayEntries: state.get('entries_to_display')
+    };
 }
+
 
 function normalizeDate(date) {
-	var dateString = "";
-	dateString += (date.getMonth() + 1).toString() + '/';
-	dateString += date.getDate().toString() + '/';
-	dateString += date.getFullYear().toString();
-	dateString += "  ";
+    var dateString = "";
+    dateString += (date.getMonth() + 1).toString() + '/';
+    dateString += date.getDate().toString() + '/';
+    dateString += date.getFullYear().toString();
+    dateString += "  ";
     if (date.getHours() < 10) {
         dateString += "0" + date.getHours().toString() + ":";
     } else {
@@ -54,24 +52,7 @@ function normalizeDate(date) {
         dateString += date.getMinutes().toString();
     }
 
-	return dateString;
-}
-
-function checkIfOwner() {
-    var userId = null;
-    var ownerId = null;
-
-    osapi.people.getViewer().execute(function(data) {
-        userId = data.id;
-        osapi.people.getOwner().execute(function(data) {
-            ownerId = data.id;
-            if (ownerId != null && userId != null && ownerId == userId) {
-                isOwner = true;
-            } else {
-                isOwner = false;
-            }
-        });
-    });
+    return dateString;
 }
 
 function sanitize(text) {
@@ -85,101 +66,118 @@ function sanitize(text) {
 
     var childElements = safeDiv.children;
     for (var i = 0; i < childElements.length; i++) {
-        childElements[i].removeAttribute("onclick");
-        childElements[i].removeAttribute("onload");
-        childElements[i].removeAttribute("onchange");
-
-        // a bit more inline js to remove
-        childElements[i].removeAttribute("onmousedown");
-        childElements[i].removeAttribute("onmouseenter");
-        childElements[i].removeAttribute("onmouseleave");
-        childElements[i].removeAttribute("onmousemove");
-        childElements[i].removeAttribute("onmouseover");
-        childElements[i].removeAttribute("onmouseout");
-        childElements[i].removeAttribute("onmouseup");
-        childElements[i].removeAttribute("oncontextmenu");
-        childElements[i].removeAttribute("ondblclick");
-        childElements[i].removeAttribute("onkeydown");
-        childElements[i].removeAttribute("onkeypress");
-        childElements[i].removeAttribute("onkeyup");
-        childElements[i].removeAttribute("onabort");
-        childElements[i].removeAttribute("onbeforeunload");
-        childElements[i].removeAttribute("onerror");
-        childElements[i].removeAttribute("onhashchange");
-        childElements[i].removeAttribute("onload");
-        childElements[i].removeAttribute("onpageshow");
-        childElements[i].removeAttribute("onpagehide");
-        childElements[i].removeAttribute("onresize");
-        childElements[i].removeAttribute("onscroll");
-        childElements[i].removeAttribute("onunload");
-        childElements[i].removeAttribute("onblur");
-        childElements[i].removeAttribute("onchange");
-        childElements[i].removeAttribute("onfocus");
-        childElements[i].removeAttribute("onfocusin");
-        childElements[i].removeAttribute("onfocusout");
-        childElements[i].removeAttribute("oninput");
-        childElements[i].removeAttribute("oninvalid");
-        childElements[i].removeAttribute("onreset");
-        childElements[i].removeAttribute("onsearch");
-        childElements[i].removeAttribute("onselect");
-        childElements[i].removeAttribute("onsubmit");
-        childElements[i].removeAttribute("ondrag");
-        childElements[i].removeAttribute("ondragend");
-        childElements[i].removeAttribute("ondragenter");
-        childElements[i].removeAttribute("ondragleave");
-        childElements[i].removeAttribute("ondragover");
-        childElements[i].removeAttribute("ondragstart");
-        childElements[i].removeAttribute("ondrop");
-        childElements[i].removeAttribute("oncopy");
-        childElements[i].removeAttribute("oncut");
-        childElements[i].removeAttribute("onpaste");
-        childElements[i].removeAttribute("onafterprint");
-        childElements[i].removeAttribute("onbeforeprint");
-        childElements[i].removeAttribute("onmessage");
-        childElements[i].removeAttribute("onopen");
-        childElements[i].removeAttribute("onwheel");
-        childElements[i].removeAttribute("ontoggle");
-        childElements[i].removeAttribute("onshow");
-        childElements[i].removeAttribute("ononline");
-        childElements[i].removeAttribute("onoffline");
-        childElements[i].removeAttribute("ontouchcancel");
-        childElements[i].removeAttribute("ontouchend");
-        childElements[i].removeAttribute("ontouchmove");
-        childElements[i].removeAttribute("ontouchstart");
-        childElements[i].removeAttribute("onpopstate");
-        childElements[i].removeAttribute("onstorage");
-        childElements[i].removeAttribute("transitionend");
-        childElements[i].removeAttribute("animationend");
-        childElements[i].removeAttribute("animationiteration");
-        childElements[i].removeAttribute("animationstart");
-        childElements[i].removeAttribute("oncanplay");
-        childElements[i].removeAttribute("oncanplaythrough");
-        childElements[i].removeAttribute("ondurationchange");
-        childElements[i].removeAttribute("onemptied");
-        childElements[i].removeAttribute("onended");
-        childElements[i].removeAttribute("onloadeddata");
-        childElements[i].removeAttribute("onloadedmetadata");
-        childElements[i].removeAttribute("onloadstart");
-        childElements[i].removeAttribute("onpause");
-        childElements[i].removeAttribute("onplay");
-        childElements[i].removeAttribute("onplaying");
-        childElements[i].removeAttribute("onprogress");
-        childElements[i].removeAttribute("onratechange");
-        childElements[i].removeAttribute("onseeked");
-        childElements[i].removeAttribute("onseeking");
-        childElements[i].removeAttribute("onstalled");
-        childElements[i].removeAttribute("onsuspend");
-        childElements[i].removeAttribute("ontimeupdate");
-        childElements[i].removeAttribute("onvolumechange");
-        childElements[i].removeAttribute("onwaiting");
+        ["onclick","onload","onchange","onmousedown","onmouseenter","onmouseleave","onmousemove"
+        ,"onmouseover","onmouseout","onmouseup","oncontextmenu","ondblclick","onkeydown"
+        ,"onkeypress","onkeyup","onabort","onbeforeunload","onerror","onhashchange","onload"
+        ,"onpageshow","onpagehide","onresize","onscroll","onunload","onblur","onchange","onfocus"
+        ,"onfocusin","onfocusout","oninput","oninvalid","onreset","onsearch","onselect","onsubmit"
+        ,"ondrag","ondragend","ondragenter","ondragleave","ondragover","ondragstart","ondrop"
+        ,"oncopy","oncut","onpaste","onafterprint","onbeforeprint","onmessage","onopen","onwheel"
+        ,"ontoggle","onshow","ononline","onoffline","ontouchcancel","ontouchend","ontouchmove"
+        ,"ontouchstart","onpopstate","onstorage","transitionend","animationend"
+        ,"animationiteration","animationstart","oncanplay","oncanplaythrough","ondurationchange"
+        ,"onemptied","onended","onloadeddata","onloadedmetadata","onloadstart","onpause","onplay"
+        ,"onplaying","onprogress","onratechange","onseeked","onseeking","onstalled","onsuspend"
+        ,"ontimeupdate","onvolumechange","onwaiting"].forEach(function(event) {
+            childElements[i].removeAttribute(event);
+        });
     }
 
     return safeDiv.innerHTML;
 }
 
-function handleResponse(obj) {
-    if (obj.rc == 400) {
-        renderEditPage("Provided link is not a valid RSS Feed.");
+function handleUiErrors(message, clean) {
+    if (clean == null) clean = true;
+
+    var input = document.getElementById('link_to_rss');
+    var span = document.getElementById('error_txt');
+
+    if (clean) {
+        input.style.borderStyle='';
+        input.style.borderColor = '';
+        span.textContent = '';
+    } else {
+        input.style.borderStyle='solid';
+        input.style.borderColor = 'red';
+        span.textContent = message;
+    }
+}
+
+function renderEditButton() {
+    if (!isOwner || document.getElementById('editButtonIcon') != null) return;
+
+    var footer = document.getElementById('footer');
+    var button = document.createElement('div');
+    button.setAttribute('id', 'editButtonIcon');
+    button.setAttribute('onclick', 'renderEditPage()');
+    footer.appendChild(button);
+}
+
+function handleSaveButton(saving) {
+    if (saving == null) saving = true;
+
+    var btn = document.getElementById('saveButton');
+    if (btn == null) return;
+
+    if (saving) {
+        btn.textContent = 'Saving...'
+        btn.disabled = true;
+    } else {
+        btn.textContent = 'Save'
+        btn.disabled = false;
+    }
+}
+
+function cancelEdit() {
+    var state = getState();
+    if (state.rssLink != null && state.rssLink != '') insertRSS();
+}
+
+function saveRSS(){
+    handleUiErrors();
+    handleSaveButton();
+
+    requestRSS(function(obj) {
+        if (obj.rc == 200) {
+            var rssLink = document.getElementById('link_to_rss').value;
+            var entriesCount = parseInt(document.getElementById('entries_to_display').value);
+
+            if (rssLink != null && rssLink != '') {
+                if (entriesCount == null || entriesCount == '' || entriesCount < 1 || entriesCount > 25) {
+                    entriesCount = 3;
+                }
+
+                isOnSave = true;
+
+                var state = wave.getState();
+                state.submitDelta({
+                    'rss_link': rssLink,
+                    'entries_to_display': entries_to_display
+                });
+            }
+        } else {
+            handleSaveButton(false);
+            handleUiErrors('Provided link is not a valid RSS Feed.', false);
+        }
+    });
+}
+
+function requestRSS(callback) {
+    var state = getState();
+    var number = state.get('entries_to_display');
+    if (number == null || number == '') number = 3;
+
+    var opt_params = {};
+    opt_params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.FEED;
+    opt_params[gadgets.io.RequestParameters.NUM_ENTRIES] = number;
+    opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 3600;
+
+    gadgets.io.makeRequest(state.rssLink, callback, opt_params);
+}
+
+function insertRss() {
+    if (document.getElementsByClassName('rssEntry').length > 0) {
+        renderEditButton();
         return;
     }
 
@@ -187,63 +185,67 @@ function handleResponse(obj) {
     var htmlFooter = "";
     var htmlHeader = "";
 
-    var rss = toObject(obj.text);
-    rss["Entry"].forEach(function(entry){
-    	html += "<div class='rssEntry'>";
-    	html += "<div class='entryTitle'>" + sanitize(entry["Title"]) + "</div>";
-    	var entryDate = new Date(entry["Date"]);
-    	html += "<div class='entryDate'>" + normalizeDate(entryDate) + "</div>";
-    	html += "<a target='_blank' class='entryLink' href='" + sanitize(entry["Link"]) + "'>" + "Browse</a>";
-    	html += "</div>";
-    });
+    requestRSS(function(obj){
+        var rss = toObject(obj.text);
+        if (obj.rc == 200) {
+            rss["Entry"].forEach(function(entry){
+                html += "<div class='rssEntry'>";
+                html += "<div class='entryTitle'>" + sanitize(entry["Title"]) + "</div>";
+                var entryDate = new Date(entry["Date"]);
+                html += "<div class='entryDate'>" + normalizeDate(entryDate) + "</div>";
+                html += "<a target='_blank' class='entryLink' href='" + sanitize(entry["Link"]) + "'>" + "Browse</a>";
+                html += "</div>";
+            });
 
-    if (isOwner) {
-        //htmlFooter += "<button id='editButton' onclick='renderEditPage(null)''>Edit</button>";
-        htmlFooter += "<div id='editButtonIcon' onclick='renderEditPage(null)''></div>";
-    }
+            if (rss["Image"] != undefined && rss["Image"]["Url"] != undefined) {
+                htmlHeader += "<div class='mainImageWrapper'><img class='mainImage' src='" + sanitize(rss["Image"]["Url"]) + "'></div>";
+            }
+            htmlHeader += "<a target='_blank' class='mainLink' href='" + sanitize(rss["Link"]) + "'>" + sanitize(rss["Title"]) + "</a>";
 
-    if (rss["Image"] != undefined && rss["Image"]["Url"] != undefined) {
-        htmlHeader += "<div class='mainImageWrapper'><img class='mainImage' src='" + sanitize(rss["Image"]["Url"]) + "'></div>";
-    }
-    htmlHeader += "<a target='_blank' class='mainLink' href='" + sanitize(rss["Link"]) + "'>" + sanitize(rss["Title"]) + "</a>";
+            document.getElementById('body').innerHTML = html;
+            document.getElementById('footer').innerHTML = htmlFooter;
+            document.getElementById('header').innerHTML = htmlHeader;
 
-    document.getElementById('body').innerHTML = html;
-    document.getElementById('footer').innerHTML = htmlFooter;
-    document.getElementById('header').innerHTML = htmlHeader;
+            renderEditButton();
+        } else {
+            if (isOwner) {
+                renderEditPage();
+            } else {
+                renderDummy();
+            }
+        }
+    })
 }
 
-function renderEditPage(errorText) {
-	var state = wave.getState();
-	var rssLink = state.get('rss_link');
-    var entries_to_display = state.get('entries_to_display');
+function isEditPageShown() {
+    return document.getElementById('saveButton') != null;
+}
+function renderEditPage() {
+    if (isEditPageShown()) return;
 
-	var html = "";
-	var htmlHeader = "";
-	var htmlFooter = "";
+    var state = getState();
 
-    if (errorText != null && errorText != "") {
-        html += "<p style='font-size: 14px; color: red;'>" + errorText + "</p>";
-    }
+    var html = '';
+    var htmlHeader = '';
+    var htmlFooter = '';
 
-	html += "<p style='font-size: 14px;'>Enter RSS feed URL:</p>";
-	if (rssLink != null && rssLink != "") {
-		html += "<input type='text' id='link_to_rss' value='" + rssLink + "'>";
-	} else {
-		html += "<input type='text' id='link_to_rss' value=''>";
-	}
+    html += "<p class='label'>Enter RSS feed URL:</p>";
 
-    html += "<p style='font-size: 14px;'>Enter number of entries to display (1-25):</p>"
+    var rssValue = '';
+    if (state.rssLink != null && state.rssLink != "") rssValue = state.rssLink;
+    html += "<input type='text' id='link_to_rss' value='"+rssValue+"'>";
+    html += "<span id='error_txt' style='display: block;'></span>"
 
-    if (entries_to_display != null) {
-        html += "<input type='text' id='entries_to_display' style='width: 40px;' value='" + entries_to_display + "'>";
-    } else {
-        html += "<input type='text' id='entries_to_display' value='3' style='width: 40px;'>";
-    }
+    html += "<p class='label'>Enter number of entries to display (1-25):</p>"
+
+    var numValue = 3;
+    if (state.displayEntries != null && state.displayEntries != '') numValue = state.displayEntries;
+    html += "<input id='entries_to_display' type='number' value='"+numValue+"' min='1' max=25 style='width: 40px;'>";
 
     html += "</br>";
 
-    html += "<button id='saveButton' onclick='changeRSSLink()''>Save</button>";
-    html += "<button id='cancelButton' onclick='renderRSS()''>Cancel</button>";
+    html += "<button id='saveButton' onclick='saveRSS()''>Save</button>";
+    html += "<button id='cancelButton' onclick='cancelEdit()''>Cancel</button>";
 
     html += "<p>";
     html += "Please report issues to IT direct component ";
@@ -253,17 +255,21 @@ function renderEditPage(errorText) {
     html += ".";
     html += "</p>";
 
+    htmlFooter += "<div class='help-container'><a class='help-link' href='https://jam4.sapjam.com/wiki/show/2ZrYD1OhdVispcr5bSzf1T' target='_blank' title='Help'>?</a></div>";
+
     document.getElementById('body').innerHTML = html;
     document.getElementById('footer').innerHTML = htmlFooter;
     document.getElementById('header').innerHTML = htmlHeader;
 }
 
 function renderDummy() {
+    if (document.getElementById('dummy_txt') != null) return;
+
     var html = "";
     var htmlHeader = "";
     var htmlFooter = "";
 
-    html += "<p style='color:red;'>Gadget has not yet been initialized with proper RSS Feed. Please contact group admin.</p>";
+    html += "<p id='dummy_txt' style='color:red;'>Gadget has not yet been initialized with proper RSS Feed. Please contact group admin.</p>";
 
     document.getElementById('body').innerHTML = html;
     document.getElementById('footer').innerHTML = htmlFooter;
@@ -271,44 +277,27 @@ function renderDummy() {
 }
 
 function renderRSS() {
-    if (!wave.getState()) {
-        return;
-    }
-    var state = wave.getState();
-    var rssLink = state.get('rss_link');
-    var displayEntries = state.get('entries_to_display');
-
+    if (!wave.getState()) return;
     checkIfOwner();
+    if (!isOnSave && isEditPageShown()) return;
 
-    if (rssLink != null && rssLink != "") {
-        if (displayEntries == null) {
-            displayEntries = 3;
-        }
-    	requestRSS(rssLink, displayEntries);
+    isOnSave = false;
+
+    var state = getState();
+    if (state.rssLink != null && state.rssLink != '') {
+        insertRSS();
     } else {
         if (isOwner) {
-    	   renderEditPage(null);
+            renderEditPage();
         } else {
-            /*setTimeout(function(){
-                if (isOwner) {
-                   renderEditPage(null);
-                }
-            }, 2000);*/
             renderDummy();
         }
     }
-
-    /*gadgets.window.adjustHeight();
-    setTimeout(function(){
-        gadgets.window.adjustHeight();
-    }, 1500);*/
 }
 
 function init() {
     if (wave && wave.isInWaveContainer()) {
         wave.setStateCallback(renderRSS);
-
-        // wave.setParticipantCallback(renderRSS);
     }
 }
 
