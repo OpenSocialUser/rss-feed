@@ -133,11 +133,11 @@ function cancelEdit() {
     if (state.rssLink != null && state.rssLink != '') insertRss();
 }
 
-function saveRSS(){
+function saveRss(){
     handleUiErrors();
     handleSaveButton();
 
-    requestRSS(function(obj) {
+    requestRss(function(obj) {
         if (obj.rc == 200) {
             var rssLink = document.getElementById('link_to_rss').value;
             var entriesCount = parseInt(document.getElementById('entries_to_display').value);
@@ -162,9 +162,9 @@ function saveRSS(){
     });
 }
 
-function requestRSS(callback) {
+function requestRss(callback) {
     var state = getState();
-    var number = state.get('entries_to_display');
+    var number = state.displayEntries;
     if (number == null || number == '') number = 3;
 
     var opt_params = {};
@@ -185,7 +185,7 @@ function insertRss() {
     var htmlFooter = "";
     var htmlHeader = "";
 
-    requestRSS(function(obj){
+    requestRss(function(obj){
         var rss = toObject(obj.text);
         if (obj.rc == 200) {
             rss["Entry"].forEach(function(entry){
@@ -244,7 +244,7 @@ function renderEditPage() {
 
     html += "</br>";
 
-    html += "<button id='saveButton' onclick='saveRSS()''>Save</button>";
+    html += "<button id='saveButton' onclick='saveRss()''>Save</button>";
     html += "<button id='cancelButton' onclick='cancelEdit()''>Cancel</button>";
 
     html += "<p>";
@@ -276,7 +276,7 @@ function renderEditPage() {
 //     document.getElementById('header').innerHTML = htmlHeader;
 // }
 
-function renderRSS() {
+function renderRss() {
     if (!wave.getState()) return;
     checkIfOwner();
     if (!isOnSave && isEditPageShown()) return;
@@ -295,7 +295,7 @@ function renderRSS() {
 
 function init() {
     if (wave && wave.isInWaveContainer()) {
-        wave.setStateCallback(renderRSS);
+        wave.setStateCallback(renderRss);
     }
 }
 
