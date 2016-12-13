@@ -130,7 +130,7 @@ function handleSaveButton(saving) {
 
 function cancelEdit() {
     var state = getState();
-    if (state.rssLink != null && state.rssLink != '') insertRSS();
+    if (state.rssLink != null && state.rssLink != '') insertRss();
 }
 
 function saveRSS(){
@@ -262,19 +262,19 @@ function renderEditPage() {
     document.getElementById('header').innerHTML = htmlHeader;
 }
 
-function renderDummy() {
-    if (document.getElementById('dummy_txt') != null) return;
+// function renderDummy() {
+//     if (document.getElementById('dummy_txt') != null) return;
 
-    var html = "";
-    var htmlHeader = "";
-    var htmlFooter = "";
+//     var html = "";
+//     var htmlHeader = "";
+//     var htmlFooter = "";
 
-    html += "<p id='dummy_txt' style='color:red;'>Gadget has not yet been initialized with proper RSS Feed. Please contact group admin.</p>";
+//     html += "<p id='dummy_txt' style='color:red;'>Gadget has not yet been initialized with proper RSS Feed. Please contact group admin.</p>";
 
-    document.getElementById('body').innerHTML = html;
-    document.getElementById('footer').innerHTML = htmlFooter;
-    document.getElementById('header').innerHTML = htmlHeader;
-}
+//     document.getElementById('body').innerHTML = html;
+//     document.getElementById('footer').innerHTML = htmlFooter;
+//     document.getElementById('header').innerHTML = htmlHeader;
+// }
 
 function renderRSS() {
     if (!wave.getState()) return;
@@ -285,12 +285,10 @@ function renderRSS() {
 
     var state = getState();
     if (state.rssLink != null && state.rssLink != '') {
-        insertRSS();
+        insertRss();
     } else {
         if (isOwner) {
             renderEditPage();
-        } else {
-            renderDummy();
         }
     }
 }
