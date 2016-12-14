@@ -12,6 +12,10 @@
 }
 
 #header {
+
+}
+
+.rss-header {
 	height: 30px;
 	display: inline-block;
 	width: 100%;
@@ -117,6 +121,7 @@
 	border-style: solid;
 	border-width: thin;
 	border-color: grey;
+	margin-top: 10px;
 }
 
 .help-link {

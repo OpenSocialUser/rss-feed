@@ -133,50 +133,44 @@ function cancelEdit() {
     if (state.rssLink != null && state.rssLink != '') insertRss();
 }
 
-function saveRss(){
-    handleUiErrors();
-    handleSaveButton();
-
-    requestRss(function(obj) {
-        if (obj.rc == 200) {
-            var rssLink = document.getElementById('link_to_rss').value;
-            var entriesCount = parseInt(document.getElementById('entries_to_display').value);
-
-            if (rssLink != null && rssLink != '') {
-                if (isNaN(entriesCount) || entriesCount < 1 || entriesCount > 25) {
-                    entriesCount = 3;
-                }
-
-                isOnSave = true;
-
-                var state = wave.getState();
-                state.submitDelta({
-                    'rss_link': rssLink,
-                    'entries_to_display': entriesCount
-                });
-            }
-        } else {
-            handleSaveButton(false);
-            handleUiErrors('Provided link is not a valid RSS Feed.', false);
-        }
-    });
-}
-
-function requestRss(callback) {
-    var state = getState();
-    var number = state.displayEntries;
-    if (number == null || number == '') {
-        number = 3;
-    } else {
-        number = parseInt(number);
-    }
-
+function requestRss(url, number, callback) {
     var opt_params = {};
     opt_params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.FEED;
     opt_params[gadgets.io.RequestParameters.NUM_ENTRIES] = number;
     opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 3600;
 
-    gadgets.io.makeRequest(state.rssLink, callback, opt_params);
+    gadgets.io.makeRequest(url, callback, opt_params);
+}
+
+function saveRss(){
+    var rssLink = document.getElementById('link_to_rss').value;
+    var entriesCount = parseInt(document.getElementById('entries_to_display').value);
+
+    if (rssLink == null || rssLink == '') {
+        handleUiErrors('Provided link is not a valid RSS Feed.', false);
+        return;
+    } else {
+        handleUiErrors();
+        handleSaveButton();
+
+        if (isNaN(entriesCount) || entriesCount < 1 || entriesCount > 25) entriesCount = 3;
+
+        requestRss(rssLink, entriesCount, function(obj) {
+            if (obj.rc == 200) {
+                    isOnSave = true;
+
+                    var state = wave.getState();
+                    state.submitDelta({
+                        'rss_link': rssLink,
+                        'entries_to_display': entriesCount
+                    });
+                }
+            } else {
+                handleSaveButton(false);
+                handleUiErrors('Provided link is not a valid RSS Feed.', false);
+            }
+        });
+    }
 }
 
 function insertRss() {
@@ -189,9 +183,10 @@ function insertRss() {
     var htmlFooter = "";
     var htmlHeader = "";
 
-    requestRss(function(obj){
-        var rss = toObject(obj.text);
+    var state = getState();
+    requestRss(state.rssLink, state.displayEntries, function(obj){
         if (obj.rc == 200) {
+            var rss = toObject(obj.text);
             rss["Entry"].forEach(function(entry){
                 html += "<div class='rssEntry'>";
                 html += "<div class='entryTitle'>" + sanitize(entry["Title"]) + "</div>";
@@ -204,7 +199,9 @@ function insertRss() {
             if (rss["Image"] != undefined && rss["Image"]["Url"] != undefined) {
                 htmlHeader += "<div class='mainImageWrapper'><img class='mainImage' src='" + sanitize(rss["Image"]["Url"]) + "'></div>";
             }
+            htmlHeader += "<div class='rss-header'>";
             htmlHeader += "<a target='_blank' class='mainLink' href='" + sanitize(rss["Link"]) + "'>" + sanitize(rss["Title"]) + "</a>";
+            htmlHeader += "</div>";
 
             document.getElementById('body').innerHTML = html;
             document.getElementById('footer').innerHTML = htmlFooter;
@@ -212,11 +209,7 @@ function insertRss() {
 
             renderEditButton();
         } else {
-            if (isOwner) {
-                renderEditPage();
-            } else {
-                renderDummy();
-            }
+            if (isOwner) renderEditPage();
         }
     })
 }
