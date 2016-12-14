@@ -113,20 +113,11 @@
 	margin-bottom: 6px;
 }
 
-.help-container {
-	text-align: center;
-	height: 20px;
-	width: 20px;
-	border-radius: 50%;
-	border-style: solid;
-	border-width: thin;
-	border-color: grey;
+#help_icon {
 	margin-top: 10px;
-}
-
-.help-link {
-	font-size: 18px;
-	text-decoration: none;
-	color: grey;
-	font-weight: bold;
+	margin-left: 10px;
+	width: 22px;
+	height: 22px;
+	background-image: url('http://opensocialuser.github.io/help_icon.png');
+	background-size: contain;
 }
