@@ -195,10 +195,10 @@ function insertRss() {
                 html += "</div>";
             });
 
+            htmlHeader += "<div class='rss-header'>";
             if (rss["Image"] != undefined && rss["Image"]["Url"] != undefined) {
                 htmlHeader += "<div class='mainImageWrapper'><img class='mainImage' src='" + sanitize(rss["Image"]["Url"]) + "'></div>";
             }
-            htmlHeader += "<div class='rss-header'>";
             htmlHeader += "<a target='_blank' class='mainLink' href='" + sanitize(rss["Link"]) + "'>" + sanitize(rss["Title"]) + "</a>";
             htmlHeader += "</div>";
 
