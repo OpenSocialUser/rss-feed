@@ -157,14 +157,13 @@ function saveRss(){
 
         requestRss(rssLink, entriesCount, function(obj) {
             if (obj.rc == 200) {
-                    isOnSave = true;
+                isOnSave = true;
 
-                    var state = wave.getState();
-                    state.submitDelta({
-                        'rss_link': rssLink,
-                        'entries_to_display': entriesCount
-                    });
-                }
+                var state = wave.getState();
+                state.submitDelta({
+                    'rss_link': rssLink,
+                    'entries_to_display': entriesCount
+                });
             } else {
                 handleSaveButton(false);
                 handleUiErrors('Provided link is not a valid RSS Feed.', false);
