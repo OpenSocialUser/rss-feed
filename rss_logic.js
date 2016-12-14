@@ -143,7 +143,7 @@ function saveRss(){
             var entriesCount = parseInt(document.getElementById('entries_to_display').value);
 
             if (rssLink != null && rssLink != '') {
-                if (entriesCount == null || entriesCount == '' || entriesCount < 1 || entriesCount > 25) {
+                if (isNaN(entriesCount) || entriesCount < 1 || entriesCount > 25) {
                     entriesCount = 3;
                 }
 
@@ -152,7 +152,7 @@ function saveRss(){
                 var state = wave.getState();
                 state.submitDelta({
                     'rss_link': rssLink,
-                    'entries_to_display': entries_to_display
+                    'entries_to_display': entriesCount
                 });
             }
         } else {
@@ -165,7 +165,11 @@ function saveRss(){
 function requestRss(callback) {
     var state = getState();
     var number = state.displayEntries;
-    if (number == null || number == '') number = 3;
+    if (number == null || number == '') {
+        number = 3;
+    } else {
+        number = parseInt(number);
+    }
 
     var opt_params = {};
     opt_params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.FEED;
