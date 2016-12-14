@@ -202,6 +202,8 @@ function insertRss() {
             htmlHeader += "<a target='_blank' class='mainLink' href='" + sanitize(rss["Link"]) + "'>" + sanitize(rss["Title"]) + "</a>";
             htmlHeader += "</div>";
 
+            htmlHeader += "<div style='height: 20px'></div>"
+
             document.getElementById('body').innerHTML = html;
             document.getElementById('footer').innerHTML = htmlFooter;
             document.getElementById('header').innerHTML = htmlHeader;
