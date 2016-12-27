@@ -165,8 +165,11 @@ function saveRss(){
                     'entries_to_display': entriesCount
                 });
             } else {
+                var message = 'URL cannot be saved. Please reload the page and try again.'
+                if (obj.rc == 400) message = 'Provided link is not a valid RSS Feed.';
+
                 handleSaveButton(false);
-                handleUiErrors('Provided link is not a valid RSS Feed.', false);
+                handleUiErrors(message, false);
             }
         });
     }
