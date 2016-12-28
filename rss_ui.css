@@ -113,9 +113,10 @@
 	background-image: url('http://opensocialuser.github.io/settings_icon.png');
 }
 
-#error_txt {
+.error-txt {
 	color: #ff0000;
 	font-size: 13px;
+	display: block;
 }
 
 .label {

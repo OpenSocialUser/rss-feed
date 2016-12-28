@@ -86,20 +86,25 @@ function sanitize(text) {
     return safeDiv.innerHTML;
 }
 
-function handleUiErrors(message, clean) {
+function handleUiErrors(type, message, clean) {
+    if (type == null) type = 'general';
     if (clean == null) clean = true;
 
     var input = document.getElementById('link_to_rss');
-    var span = document.getElementById('error_txt');
+    var urlSpan = document.getElementById('url_error');
+    var generalSpan = document.getElementById('general_error');
 
     if (clean) {
         input.style.borderStyle='';
         input.style.borderColor = '';
-        span.textContent = '';
+        urlSpan.textContent = '';
+        generalSpan.textContent = '';
+    } else if (type == 'general') {
+        generalSpan.textContent = message;
     } else {
         input.style.borderStyle='solid';
         input.style.borderColor = 'red';
-        span.textContent = message;
+        urlSpan.textContent = message;
     }
 }
 
@@ -128,9 +133,26 @@ function handleSaveButton(saving) {
     }
 }
 
+function checkOsApiAvailable(options, callback) {
+    osapi.people.getOwner().execute(function(data) {
+        if (data.id == null) {
+            handleSaveButton(false);
+            handleUiErrors('general', options.msg, false);
+        } else {
+            if (options.url != null && options.count != null) {
+                callback(options.url, options.count);
+            } else {
+                callback();
+            }
+        }
+    })
+}
+
 function cancelEdit() {
     var state = getState();
-    if (state.rssLink != null && state.rssLink != '') insertRss();
+    if (state.rssLink != null && state.rssLink != '') {
+        checkOsApiAvailable({msg: 'RSS Feed cannot be rendered. Please reload the page.'}, insertRss);
+    }
 }
 
 function requestRss(url, number, callback) {
@@ -142,36 +164,45 @@ function requestRss(url, number, callback) {
     gadgets.io.makeRequest(url, callback, opt_params);
 }
 
-function saveRss(){
+function saveRss() {
     var rssLink = document.getElementById('link_to_rss').value;
     var entriesCount = parseInt(document.getElementById('entries_to_display').value);
 
     if (rssLink == null || rssLink == '') {
-        handleUiErrors('Provided link is not a valid RSS Feed.', false);
-        return;
+        handleUiErrors('url', 'Provided link is not a valid RSS Feed.', false);
     } else {
         handleUiErrors();
         handleSaveButton();
 
-        if (isNaN(entriesCount) || entriesCount < 1 || entriesCount > 25) entriesCount = 3;
+        checkOsApiAvailable(
+            {
+                msg: 'Changes cannot be saved. Please reload the page and try again.',
+                url: rssLink,
+                count: entriesCount
+            },
+            function(rssLink, entriesCount) {
+                if (isNaN(entriesCount) || entriesCount < 1 || entriesCount > 25) entriesCount = 3;
 
-        requestRss(rssLink, entriesCount, function(obj) {
-            if (obj.rc == 200) {
-                isOnSave = true;
+                requestRss(rssLink, entriesCount, function(obj) {
+                    if (obj.rc == 200) {
+                        isOnSave = true;
 
-                var state = wave.getState();
-                state.submitDelta({
-                    'rss_link': rssLink,
-                    'entries_to_display': entriesCount
+                        var state = wave.getState();
+                        state.submitDelta({
+                            'rss_link': rssLink,
+                            'entries_to_display': entriesCount
+                        });
+                    } else {
+                        var message = 'URL cannot be saved. Please reload the page and try again.';
+                        if (obj.rc == 400) message = 'Provided link is not a valid RSS Feed.';
+
+                        handleSaveButton(false);
+                        handleUiErrors('url', message, false);
+                    }
                 });
-            } else {
-                var message = 'URL cannot be saved. Please reload the page and try again.'
-                if (obj.rc == 400) message = 'Provided link is not a valid RSS Feed.';
-
-                handleSaveButton(false);
-                handleUiErrors(message, false);
             }
-        });
+        );
+
     }
 }
 
@@ -235,7 +266,7 @@ function renderEditPage() {
     var rssValue = '';
     if (state.rssLink != null && state.rssLink != "") rssValue = state.rssLink;
     html += "<input type='text' id='link_to_rss' value='"+rssValue+"'>";
-    html += "<span id='error_txt' style='display: block;'></span>"
+    html += "<span id='url_error' class='error-txt'></span>"
 
     html += "<p class='label'>Enter number of entries to display (1-25):</p>"
 
@@ -243,7 +274,7 @@ function renderEditPage() {
     if (state.displayEntries != null && state.displayEntries != '') numValue = state.displayEntries;
     html += "<input id='entries_to_display' type='number' value='"+numValue+"' min='1' max=25 style='width: 40px;'>";
 
-    html += "</br>";
+    html += "<span id='general_error' class='error-txt' style='margin-top: 10px;'></span>"
 
     html += "<button id='saveButton' onclick='saveRss()''>Save</button>";
     html += "<button id='cancelButton' onclick='cancelEdit()''>Cancel</button>";
