@@ -245,6 +245,7 @@ function insertRss() {
             document.getElementById('header').innerHTML = htmlHeader;
 
             renderEditButton();
+            window.onload = gadgets.window.adjustHeight();
         } else {
             if (isOwner) renderEditPage();
         }
