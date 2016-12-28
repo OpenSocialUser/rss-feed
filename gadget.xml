@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" ?> 
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <Module>
-    <ModulePrefs title="RSS Feed"  height="350">
+    <ModulePrefs title="RSS Feed"  height="370">
     	<Require feature="wave"/>
     	<Require feature="osapi"/>
     	<Require feature="dynamic-height"/>

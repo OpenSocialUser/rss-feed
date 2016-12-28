@@ -149,6 +149,8 @@ function checkOsApiAvailable(options, callback) {
 }
 
 function cancelEdit() {
+    handleUiErrors();
+
     var state = getState();
     if (state.rssLink != null && state.rssLink != '') {
         checkOsApiAvailable({msg: 'RSS Feed cannot be rendered. Please reload the page.'}, insertRss);
@@ -165,15 +167,15 @@ function requestRss(url, number, callback) {
 }
 
 function saveRss() {
+    handleUiErrors();
+
     var rssLink = document.getElementById('link_to_rss').value;
     var entriesCount = parseInt(document.getElementById('entries_to_display').value);
 
     if (rssLink == null || rssLink == '') {
         handleUiErrors('url', 'Provided link is not a valid RSS Feed.', false);
     } else {
-        handleUiErrors();
         handleSaveButton();
-
         checkOsApiAvailable(
             {
                 msg: 'Changes cannot be saved. Please reload the page and try again.',

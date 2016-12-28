@@ -40,7 +40,7 @@
 }
 
 #link_to_rss {
-
+	width: 230px;
 }
 
 .rssEntry {
@@ -101,13 +101,10 @@
 	margin-left: 10px;
 }
 
-#editButton {
-	margin-top: 10px;
-}
-
 #editButtonIcon {
 	margin-top: 10px;
 	margin-left: 10px;
+	margin-right: 5px;
 	width: 22px;
 	height: 22px;
 	background-image: url('http://opensocialuser.github.io/settings_icon.png');
