@@ -245,7 +245,11 @@ function insertRss() {
             document.getElementById('header').innerHTML = htmlHeader;
 
             renderEditButton();
-            window.onload = gadgets.window.adjustHeight();
+            if (gadgets.window.getHeight() < 370) {
+                gadgets.window.adjustHeight();
+            } else {
+                gadgets.window.adjustHeight(370);
+            }
         } else {
             if (isOwner) renderEditPage();
         }
@@ -296,6 +300,8 @@ function renderEditPage() {
     document.getElementById('body').innerHTML = html;
     document.getElementById('footer').innerHTML = htmlFooter;
     document.getElementById('header').innerHTML = htmlHeader;
+
+    gadgets.window.adjustHeight(370);
 }
 
 // function renderDummy() {
