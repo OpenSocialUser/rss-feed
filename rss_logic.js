@@ -51,7 +51,6 @@ function normalizeDate(date) {
     } else {
         dateString += date.getMinutes().toString();
     }
-
     return dateString;
 }
 
@@ -82,19 +81,19 @@ function sanitize(text) {
             childElements[i].removeAttribute(event);
         });
     }
-
     return safeDiv.innerHTML;
 }
 
 var error_messages = {
-    empty_input: 'Please provide a link to RSS Feed.',
-    invalid_input: 'Provided link is not a valid RSS Feed.',
-    expired_session: 'Changes cannot be saved.\nPlease reload the page and try again.',
-    unavailable: 'The feed cannot be retrieved now.\nPlease try again later.'
+    empty_input:       'Please provide a link to RSS Feed.',
+    invalid_input:     'Provided link is not a valid RSS Feed.',
+    expired_on_save:   'Changes cannot be saved.\nPlease reload the page and try again.',
+    expired_on_cancel: 'RSS Feed cannot be rendered. Please reload the page.'
+    unavailable:       'The feed cannot be retrieved now.\nPlease try again later.'
 }
 
 var error_types = {
-    data: 'url',
+    data:    'url',
     general: 'general'
 }
 
@@ -149,13 +148,11 @@ function checkOsApiAvailable(options, callback) {
     osapi.people.getOwner().execute(function(data) {
         if (data.id == null) {
             handleSaveButton(false);
-            handleUiErrors(error_types.general, error_messages.expired_session, false);
+            handleUiErrors(error_types.general, options.msg, false);
         } else {
             if (options.url != null && options.count != null) {
                 callback(options.url, options.count);
-            } else {
-                callback();
-            }
+            } else callback();
         }
     })
 }
@@ -165,7 +162,7 @@ function cancelEdit() {
 
     var state = getState();
     if (state.rssLink != null && state.rssLink != '') {
-        checkOsApiAvailable({msg: 'RSS Feed cannot be rendered. Please reload the page.'}, insertRss);
+        checkOsApiAvailable({msg: error_messages.expired_on_cancel}, insertRss);
     }
 }
 
@@ -182,40 +179,42 @@ function saveRss() {
     handleUiErrors();
 
     var rssLink = document.getElementById('link_to_rss').value;
-    var entriesCount = parseInt(document.getElementById('entries_to_display').value);
+    var entries = parseInt(document.getElementById('entries_to_display').value);
 
     if (rssLink == null || rssLink == '') {
         handleUiErrors(error_types.data, error_messages.empty_input, false);
     } else {
         handleSaveButton();
-        checkOsApiAvailable({url: rssLink, count: entriesCount}, function(rssLink, entriesCount) {
-            if (isNaN(entriesCount) || entriesCount < 1 || entriesCount > 25) entriesCount = 3;
+        checkOsApiAvailable({url: rssLink, count: entries, msg: error_messages.expired_on_save},
+            function(rssLink, entries) {
+                if (isNaN(entries) || entries < 1 || entries > 25) entries = 3;
 
-            requestRss(rssLink, entriesCount, function(obj) {
-                var message = '';
-                var type = error_types.general;
-                if (obj.rc == 200) {
-                    isOnSave = true;
+                requestRss(rssLink, entries, function(obj) {
+                    var message = '';
+                    var type = error_types.general;
+                    if (obj.rc == 200) {
+                        isOnSave = true;
 
-                    var state = wave.getState();
-                    state.submitDelta({
-                        'rss_link': rssLink,
-                        'entries_to_display': entriesCount
-                    });
-                } else {
-                    if (obj.rc == 401) {
-                        message = error_messages.expired_session;
-                    } else if (obj.rc == 408 || obj.rc >= 500) {
-                        message = error_messages.unavailable;
+                        var state = wave.getState();
+                        state.submitDelta({
+                            'rss_link': rssLink,
+                            'entries_to_display': entries
+                        });
                     } else {
-                        message = error_messages.invalid_input;
-                        type = error_types.data
+                        if (obj.rc == 401) {
+                            message = error_messages.expired_on_save;
+                        } else if (obj.rc == 408 || obj.rc >= 500) {
+                            message = error_messages.unavailable;
+                        } else {
+                            message = error_messages.invalid_input;
+                            type = error_types.data
+                        }
+                        handleSaveButton(false);
+                        handleUiErrors(type, message, false);
                     }
-                    handleSaveButton(false);
-                    handleUiErrors(type, message, false);
-                }
-            });
-        });
+                });
+            }
+        );
     }
 }
 
@@ -258,9 +257,7 @@ function insertRss() {
             renderEditButton();
             if (gadgets.window.getHeight() < 370) {
                 gadgets.window.adjustHeight();
-            } else {
-                gadgets.window.adjustHeight(370);
-            }
+            } else gadgets.window.adjustHeight(370);
         } else {
             if (isOwner) renderEditPage();
         }
@@ -270,10 +267,9 @@ function insertRss() {
 function isEditPageShown() {
     return document.getElementById('saveButton') != null;
 }
+
 function renderEditPage() {
     if (isEditPageShown()) return;
-
-    var state = getState();
 
     var html = '';
     var htmlHeader = '';
@@ -282,6 +278,7 @@ function renderEditPage() {
     html += "<p class='label'>Enter RSS feed URL:</p>";
 
     var rssValue = '';
+    var state = getState();
     if (state.rssLink != null && state.rssLink != "") rssValue = state.rssLink;
     html += "<input type='text' id='link_to_rss' value='"+rssValue+"'>";
     html += "<span id='url_error' class='error-txt'></span>"
@@ -340,16 +337,12 @@ function renderRss() {
     if (state.rssLink != null && state.rssLink != '') {
         insertRss();
     } else {
-        if (isOwner) {
-            renderEditPage();
-        }
+        if (isOwner) renderEditPage();
     }
 }
 
 function init() {
-    if (wave && wave.isInWaveContainer()) {
-        wave.setStateCallback(renderRss);
-    }
+    if (wave && wave.isInWaveContainer()) wave.setStateCallback(renderRss);
 }
 
 gadgets.util.registerOnLoadHandler(init);
