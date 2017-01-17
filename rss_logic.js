@@ -88,7 +88,7 @@ var error_messages = {
     empty_input:       'Please provide a link to RSS Feed.',
     invalid_input:     'Provided link is not a valid RSS Feed.',
     expired_on_save:   'Changes cannot be saved.\nPlease reload the page and try again.',
-    expired_on_cancel: 'RSS Feed cannot be rendered. Please reload the page.',
+    expired_on_cancel: 'RSS Feed cannot be rendered.\nPlease reload the page.',
     unavailable:       'The feed cannot be retrieved now.\nPlease try again later.'
 }
 
